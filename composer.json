@@ -1,0 +1,46 @@
+{
+    "name": "migears/ai-proxy",
+    "description": "A minimal AI streaming proxy for PHP 8.1+ — SSE relay + OpenAI-compatible model abstraction",
+    "type": "library",
+    "license": "MIT",
+    "version": "2.0.0",
+    "keywords": [
+        "ai",
+        "sse",
+        "stream",
+        "proxy",
+        "openai",
+        "migears"
+    ],
+    "require": {
+        "php": "^8.1",
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MiGears\\AiProxy\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MiGears\\AiProxy\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "archive": {
+        "exclude": [
+            "/tools"
+        ]
+    },
+    "suggest": {
+        "ext-mbstring": "Faster multibyte-safe string handling for long responses"
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}

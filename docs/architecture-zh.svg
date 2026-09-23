@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 652" width="100%" height="auto" role="img" aria-label="migears/ai-proxy 流式代理数据流图">
+  <style>
+    :root {
+      color-scheme: light;
+      --surface: #F7F7F8;
+      --surface-muted: #EFEFF2;
+      --text: #171717;
+      --text-muted: #52525B;
+      --border: rgba(23,23,23,0.12);
+      --brand: #4B3FE3;
+      --brand-soft: #F2F7FF;
+      --brand-text: #1A1759;
+      --font-sans: "SF Pro Text","PingFang SC",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+      --weight-regular: 400;
+      --weight-medium: 500;
+      --text-caption: 12px;
+      --text-body: 14px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        color-scheme: dark;
+        --surface: #171717;
+        --surface-muted: #262626;
+        --text: #E5E5E5;
+        --text-muted: #A1A1AA;
+        --border: rgba(229,229,229,0.12);
+        --brand: #6054F1;
+        --brand-soft: #1A1759;
+        --brand-text: #CFD8FF;
+      }
+    }
+    .th { fill: var(--text); font: 500 var(--text-body) var(--font-sans); }
+    .ts { fill: var(--text-muted); font: 400 var(--text-caption) var(--font-sans); }
+    .arr { stroke: var(--text-muted); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .brandPath { stroke: var(--brand); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .node { fill: var(--surface); stroke: var(--border); }
+    .nodeBrand { fill: var(--brand-soft); stroke: var(--brand); }
+    .ext { fill: var(--surface); stroke: var(--text-muted); stroke-dasharray: 5 4; }
+    .cap { fill: var(--surface-muted); stroke: var(--border); }
+  </style>
+  <defs>
+    <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M1 1 L7 4 L1 7 Z" fill="var(--text-muted)"/></marker>
+    <marker id="arrB" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M1 1 L7 4 L1 7 Z" fill="var(--brand)"/></marker>
+  </defs>
+
+  <path class="arr" d="M160 84 L160 156" marker-end="url(#arr)"/>
+  <path class="arr" d="M160 220 L160 292" marker-end="url(#arr)"/>
+  <path class="arr" d="M160 356 L160 428" marker-end="url(#arr)"/>
+  <path class="arr" d="M160 492 L160 564" marker-end="url(#arr)"/>
+  <path class="arr" d="M260 188 L400 188" marker-end="url(#arr)"/>
+  <path class="arr" d="M510 156 L510 60 L260 60" marker-end="url(#arr)"/>
+  <path class="brandPath" d="M260 588 L340 588 L340 220 L260 220" marker-end="url(#arrB)"/>
+
+  <rect class="ext" x="60" y="36" width="200" height="48" rx="24"/>
+  <text class="th" x="160" y="58" text-anchor="middle">浏览器</text>
+  <text class="ts" x="160" y="74" text-anchor="middle">fetch / ReadableStream</text>
+
+  <rect class="nodeBrand" x="60" y="156" width="200" height="64" rx="8"/>
+  <text class="th" x="160" y="184" text-anchor="middle" fill="var(--brand-text)">Proxy</text>
+  <text class="ts" x="160" y="200" text-anchor="middle" fill="var(--brand)">编排 · 心跳 · 断连 · [DONE]</text>
+
+  <rect class="node" x="60" y="292" width="200" height="64" rx="8"/>
+  <text class="th" x="160" y="320" text-anchor="middle">OpenAiClient</text>
+  <text class="ts" x="160" y="336" text-anchor="middle">组装请求 · 解析 SSE delta</text>
+
+  <rect class="node" x="60" y="428" width="200" height="64" rx="8"/>
+  <text class="th" x="160" y="456" text-anchor="middle">Upstream</text>
+  <text class="ts" x="160" y="472" text-anchor="middle">WRITEFUNCTION 逐块读取</text>
+
+  <rect class="ext" x="60" y="564" width="200" height="48" rx="24"/>
+  <text class="th" x="160" y="586" text-anchor="middle">上游 API</text>
+  <text class="ts" x="160" y="602" text-anchor="middle">DeepSeek / Qwen / Ollama</text>
+
+  <rect class="node" x="400" y="156" width="220" height="64" rx="8"/>
+  <text class="th" x="510" y="184" text-anchor="middle">Emitter</text>
+  <text class="ts" x="510" y="200" text-anchor="middle">SSE 组帧 · 逐帧 flush</text>
+
+  <rect class="cap" x="172" y="96" width="72" height="20" rx="8"/>
+  <text class="ts" x="208" y="111" text-anchor="middle">stream()</text>
+  <rect class="cap" x="172" y="236" width="58" height="20" rx="8"/>
+  <text class="ts" x="201" y="251" text-anchor="middle">chat()</text>
+  <rect class="cap" x="172" y="372" width="58" height="20" rx="8"/>
+  <text class="ts" x="201" y="387" text-anchor="middle">post()</text>
+  <rect class="cap" x="172" y="508" width="121" height="20" rx="8"/>
+  <text class="ts" x="232" y="523" text-anchor="middle">POST stream:true</text>
+  <rect class="cap" x="287" y="162" width="86" height="20" rx="8"/>
+  <text class="ts" x="330" y="177" text-anchor="middle">send(delta)</text>
+  <rect class="cap" x="356" y="72" width="56" height="20" rx="8"/>
+  <text class="ts" x="384" y="87" text-anchor="middle">SSE 帧</text>
+  <rect class="cap" x="352" y="320" width="64" height="20" rx="8"/>
+  <text class="ts" x="384" y="335" text-anchor="middle">增量回传</text>
+</svg>
