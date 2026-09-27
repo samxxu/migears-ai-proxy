@@ -26,8 +26,9 @@ final class OpenAiClient implements ClientInterface
      * @param string   $model    Model identifier.
      * @param array<string,mixed> $extraBody Extra JSON body fields to merge (temperature, max_tokens, ...).
      * @param array<string,mixed> $curlOpts Extra cURL options (e.g. CURLOPT_TIMEOUT).
-     * @param (callable(string,string,array<string,string>,callable(string):void,array<string,mixed>,callable():void|null):void)|null $transport
+     * @param (callable(string,string,list<string>,callable(string):void,array<string,mixed>,callable():void|null,float):void)|null $transport
      *   Overrides the upstream transport (used for testing).
+     * @param float $idleTimeoutSeconds Abort the call after this long without an upstream byte.
      */
     public function __construct(
         private string $endpoint,
@@ -36,6 +37,7 @@ final class OpenAiClient implements ClientInterface
         private array $extraBody = [],
         private array $curlOpts = [],
         ?callable $transport = null,
+        private float $idleTimeoutSeconds = Upstream::DEFAULT_IDLE_TIMEOUT,
     ) {
         $this->transport = $transport === null ? null : \Closure::fromCallable($transport);
     }
@@ -65,6 +67,7 @@ final class OpenAiClient implements ClientInterface
             },
             $this->curlOpts,
             $onIdle,
+            $this->idleTimeoutSeconds,
         );
 
         // Flush any trailing line not terminated by a newline.

@@ -13,7 +13,8 @@ chat responses to the browser over Server-Sent Events (SSE).
 - **Real-time relay** — cURL `WRITEFUNCTION` streams chunk-by-chunk; never buffers the full payload
 - **OpenAI-compatible** — works with DeepSeek, Qwen, Ollama, Together, ... via the `/chat/completions` SSE contract
 - **Heartbeat** — emits `: ping` comments to keep proxies/gateways from idle-timeout
-- **Client-abort aware** — `connection_aborted()` stops forwarding the moment the browser disconnects
+- **Stall-aware** — aborts the upstream after `idleTimeoutSeconds` (default 300s) with no body byte, so a half-open upstream cannot pin a worker
+- **Client-abort aware** — `connection_aborted()` is checked on every delta *and* every idle tick, so forwarding stops as soon as the disconnect is seen
 - **Testable** — the upstream transport is injectable; full PHPUnit suite
 
 ## Installation
@@ -43,6 +44,9 @@ $proxy->stream($client, [
 ```
 
 Call this from your controller after validating/authenticating the request.
+
+`idleTimeoutSeconds:` on `OpenAiClient` tunes how long a silent upstream is
+tolerated before the call is aborted; `0` turns the watchdog off.
 
 ## Architecture
 
@@ -85,7 +89,8 @@ MIT
 - **实时转发** — 用 cURL `WRITEFUNCTION` 逐块读取，绝不整包缓冲
 - **OpenAI 兼容** — 兼容 DeepSeek、通义千问、Ollama、Together 等 `/chat/completions` SSE 协议
 - **心跳保活** — 周期性输出 `: ping` 注释，避免网关空闲超时断连
-- **断连感知** — 浏览器断开后立即停止转发，节省上游额度
+- **停滞感知** — 上游超过 `idleTimeoutSeconds`（默认 300 秒）没有任何数据即中止，半开连接无法长期占用 worker
+- **断连感知** — 每个 delta 与每个空闲 tick 都检查 `connection_aborted()`，一旦发现断开立即停止转发
 - **可测** — 上游传输可注入，内置完整 PHPUnit 测试套件
 
 ## 安装
@@ -115,6 +120,8 @@ $proxy->stream($client, [
 ```
 
 在 controller 里完成入参校验与鉴权后再调用本模块。
+
+`OpenAiClient` 的 `idleTimeoutSeconds:` 决定上游静默多久后中止调用，传 `0` 表示关闭该看门狗。
 
 ## 架构
 

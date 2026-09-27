@@ -10,6 +10,7 @@ declare(strict_types=1);
 // Test hooks (query params, active on the /chat/completions path only):
 //   ?status=302|404|500   reply with that status instead of streaming
 //   ?sleep=1500           hold the connection for N ms before streaming
+//   ?stall=1500           send one delta, go quiet for N ms, then finish
 
 $uri = $_SERVER['REQUEST_URI'] ?? '/';
 $path = parse_url($uri, PHP_URL_PATH);
@@ -37,6 +38,18 @@ header('Cache-Control: no-cache');
 
 if (($input['model'] ?? '') === '') {
     echo "data: {\"error\":{\"message\":\"missing model\"}}\n\n";
+    exit;
+}
+
+// Mid-stream silence: one delta, then nothing for N ms, then the end marker.
+if (($q['stall'] ?? '') !== '') {
+    echo 'data: ' . json_encode(
+        ['choices' => [['delta' => ['content' => 'first']]]],
+        JSON_UNESCAPED_UNICODE,
+    ) . "\n\n";
+    flush();
+    usleep((int) $q['stall'] * 1000);
+    echo "data: [DONE]\n\n";
     exit;
 }
 
