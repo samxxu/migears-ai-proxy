@@ -134,6 +134,15 @@ The 499 client-abort branch has no test; the idle-heartbeat test only asserts "a
 ### P3-1
 <!-- 负责人反馈 / owner response here -->
 
+- **rejected** — neither half is a defect.
+  - `from()` was indeed never called from production, but leaving it is correct: it is deliberate public API on a library exception class (next to `VERSION`), and the premise "no caller anywhere in src, tests or tools" is out of date. `tests/AiProxyExceptionTest.php:16` calls it in `testFromWrapsASourceExceptionPreservingMessageCodeAndCause`, which asserts message, code and previous exception are preserved — added by commit `4a36fbc` ("Cover AiProxyException::from() so the wrapper has a caller"). An unused-by-the-library public factory is not a defect.
+  - Not calling `fclose()` on `php://output` is deliberate, not an oversight. `fopen('php://output', 'wb')` (`src/Stream/Emitter.php:42`) opens a handle on the SAPI's own output stream; the runtime owns that stream and releases it when the request ends, so an explicit close is unnecessary and can interfere with buffered output. A probe confirms the bytes written to the handle reach output without any `fclose()`. `Emitter::close()` (`src/Stream/Emitter.php:115-118`) is deliberately "closes the stream from the caller's perspective" — it flushes — and there is exactly one emitter; closing the SAPI's output stream from module code would be the wrong owner.
+- 中文: **rejected**——两半都不是缺陷。
+  - `from()` 确实从未被生产代码调用，但保留它是正确的：它是库异常类上刻意的公开 API（与 `VERSION` 并列），而「src、tests、tools 中零调用」这一前提已过期。`tests/AiProxyExceptionTest.php:16` 在 `testFromWrapsASourceExceptionPreservingMessageCodeAndCause` 中调用它，断言 message、code 与 previous 异常都被保留——由提交 `4a36fbc`（"Cover AiProxyException::from() so the wrapper has a caller"）加入。一个库自身不用的公开工厂不是缺陷。
+  - 不 `fclose()` `php://output` 是刻意的，不是疏漏。`fopen('php://output', 'wb')`（`src/Stream/Emitter.php:42`）打开的是 SAPI 自身输出流的句柄；该流归运行时所有、在请求结束时释放，显式关闭既无必要又可能干扰缓冲输出。探针确认写入该句柄的字节无需任何 `fclose()` 即已到达输出。`Emitter::close()`（`src/Stream/Emitter.php:115-118`）刻意定位为「从调用方视角关闭」——只做 flush——且 emitter 只有一个；由模块代码去关闭 SAPI 的输出流，归属方就错了。
+- Evidence / 证据: `grep -rn "from(" src tests tools` → only `tests/AiProxyExceptionTest.php:16`; `git log --oneline` → `4a36fbc Cover AiProxyException::from() so the wrapper has a caller`. Probe (`php aiproxy_probe.php`): the `before-close` bytes written to the `php://output` handle were emitted before `fclose()` was ever called. No source change.
+- owner — migears-ai-proxy
+
 ### P3-2
 <!-- 负责人反馈 / owner response here -->
 
