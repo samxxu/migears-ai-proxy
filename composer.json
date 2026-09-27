@@ -18,7 +18,8 @@
         "ext-json": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.0"
+        "phpunit/phpunit": "^10.0",
+        "phpstan/phpstan": "^2.2"
     },
     "autoload": {
         "psr-4": {
@@ -37,10 +38,8 @@
             "/tools"
         ]
     },
-    "suggest": {
-        "ext-mbstring": "Faster multibyte-safe string handling for long responses"
-    },
     "scripts": {
-        "test": "phpunit"
+        "test": "phpunit",
+        "analyse": "phpstan analyse"
     }
 }

@@ -14,7 +14,7 @@ use MiGears\AiProxy\Stream\Emitter;
  */
 final class Proxy
 {
-    public const VERSION = '0.1.0';
+    public const VERSION = '2.0.0';
 
     /**
      * @param float $heartbeatSeconds Emit a `: ping` comment at most this often.
@@ -28,8 +28,11 @@ final class Proxy
     /**
      * Relay a chat completion as SSE stream.
      *
-     * Runs synchronously; throws when the client disconnect is not detected
-     * but the underlying call failed. On client abort the relay simply ends.
+     * Runs synchronously; throws AiProxyException on upstream failure or when
+     * the browser disconnects (code 499, detected via connection_aborted()).
+     *
+     * @param array<int,array{role:string,content:string}> $messages     Chat history.
+     * @param array<string,string> $extraHeaders Additional SSE headers to send.
      */
     public function stream(ClientInterface $client, array $messages, array $extraHeaders = []): void
     {
@@ -37,13 +40,20 @@ final class Proxy
 
         $lastBeat = microtime(true);
         try {
-            $client->chat($messages, function (string $delta) use (&$lastBeat): void {
-                if (connection_aborted()) {
-                    throw new AiProxyException('Client aborted the stream', 499);
-                }
-                $this->heartbeatIfDue($lastBeat);
-                $this->emitter->send($delta);
-            });
+            $client->chat(
+                $messages,
+                function (string $delta) use (&$lastBeat): void {
+                    if (connection_aborted()) {
+                        throw new AiProxyException('Client aborted the stream', 499);
+                    }
+                    $this->heartbeatIfDue($lastBeat);
+                    $this->emitter->send($delta);
+                },
+                function () use (&$lastBeat): void {
+                    // Keep the connection alive even while the upstream is silent.
+                    $this->heartbeatIfDue($lastBeat);
+                },
+            );
 
             // Signal end of stream with a sentinel SSE event the frontend can key on.
             $this->emitter->send('[DONE]', 'done');

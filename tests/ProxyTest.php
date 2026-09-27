@@ -40,7 +40,7 @@ final class ProxyTest extends TestCase
     public function testRelaysDeltasAndEndsWithDoneEvent(): void
     {
         $client = new class implements ClientInterface {
-            public function chat(array $messages, callable $onChunk): void
+            public function chat(array $messages, callable $onChunk, ?callable $onIdle = null): void
             {
                 $onChunk('Hello ');
                 $onChunk('World');
@@ -57,7 +57,7 @@ final class ProxyTest extends TestCase
     public function testSendsHeartbeatWhenIdleBeyondThreshold(): void
     {
         $client = new class implements ClientInterface {
-            public function chat(array $messages, callable $onChunk): void
+            public function chat(array $messages, callable $onChunk, ?callable $onIdle = null): void
             {
                 $onChunk('start');
                 usleep(30 * 1000); // simulate a gap longer than a 10ms threshold
@@ -69,10 +69,28 @@ final class ProxyTest extends TestCase
         $this->assertStringContainsString(': ping', $this->joined());
     }
 
+    public function testSendsHeartbeatDuringChunkFreeStretch(): void
+    {
+        // A truly silent upstream: idle ticks but no deltas for 30ms, then a
+        // single trailing chunk. Heartbeat must come from the idle callback.
+        $client = new class implements ClientInterface {
+            public function chat(array $messages, callable $onChunk, ?callable $onIdle = null): void
+            {
+                $onIdle();
+                usleep(30 * 1000);
+                $onIdle();
+                $onChunk('end');
+            }
+        };
+
+        $this->makeProxy($client, 0.01)->stream($client, []);
+        $this->assertStringContainsString(': ping', $this->joined());
+    }
+
     public function testSendsHeadersOnStart(): void
     {
         $client = new class implements ClientInterface {
-            public function chat(array $messages, callable $onChunk): void
+            public function chat(array $messages, callable $onChunk, ?callable $onIdle = null): void
             {
                 $onChunk('[DONE]');
             }

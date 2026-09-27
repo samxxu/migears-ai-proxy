@@ -90,6 +90,24 @@ final class EmitterTest extends TestCase
         $this->assertSame("data: one\n\n: ping\ndata: two\n\n", $this->joined());
     }
 
+    public function testDefaultWriterTargetsPhpOutput(): void
+    {
+        ob_start();
+        try {
+            $e = new Emitter(
+                flush: static function (): void {
+                },
+                sendHeader: static function (string $header): void {
+                },
+            );
+            $e->start();
+            $e->send('hello');
+        } finally {
+            $out = ob_get_clean();
+        }
+        $this->assertSame("data: hello\n\n", $out);
+    }
+
     public function testEmitBeforeStartThrows(): void
     {
         $e = $this->makeEmitter();

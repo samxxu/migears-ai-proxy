@@ -16,7 +16,7 @@ use MiGears\AiProxy\Stream\Upstream;
  */
 final class OpenAiClient implements ClientInterface
 {
-    public const VERSION = '0.1.0';
+    public const VERSION = '2.0.0';
 
     private ?\Closure $transport;
 
@@ -26,7 +26,7 @@ final class OpenAiClient implements ClientInterface
      * @param string   $model    Model identifier.
      * @param array<string,mixed> $extraBody Extra JSON body fields to merge (temperature, max_tokens, ...).
      * @param array<string,mixed> $curlOpts Extra cURL options (e.g. CURLOPT_TIMEOUT).
-     * @param (callable(string,string,array<string,string>,callable(string):void,array<string,mixed>):void)|null $transport
+     * @param (callable(string,string,array<string,string>,callable(string):void,array<string,mixed>,callable():void|null):void)|null $transport
      *   Overrides the upstream transport (used for testing).
      */
     public function __construct(
@@ -40,7 +40,7 @@ final class OpenAiClient implements ClientInterface
         $this->transport = $transport === null ? null : \Closure::fromCallable($transport);
     }
 
-    public function chat(array $messages, callable $onChunk): void
+    public function chat(array $messages, callable $onChunk, ?callable $onIdle = null): void
     {
         $body = array_merge([
             'model' => $this->model,
@@ -64,6 +64,7 @@ final class OpenAiClient implements ClientInterface
                 $this->drain($buffer, $onChunk);
             },
             $this->curlOpts,
+            $onIdle,
         );
 
         // Flush any trailing line not terminated by a newline.

@@ -23,6 +23,9 @@ final class Emitter
     /** @var callable(string):void */
     private $sendHeader;
 
+    /** @var resource|null */
+    private $stream;
+
     private bool $started = false;
 
     private int $baseBufferLevel;
@@ -35,7 +38,9 @@ final class Emitter
     public function __construct(?callable $write = null, ?callable $flush = null, ?callable $sendHeader = null)
     {
         $this->baseBufferLevel = ob_get_level();
-        $this->write = $write ?? static fn (string $chunk): bool => fwrite(\STDOUT, $chunk) !== false;
+        // php://output works in both CLI and web SAPIs, unlike the CLI-only STDOUT.
+        $this->stream = $write === null ? (fopen('php://output', 'wb') ?: null) : null;
+        $this->write = $write ?? fn (string $chunk): bool => $this->stream !== null && fwrite($this->stream, $chunk) !== false;
         $this->flush = $flush ?? static function (): void {
             if (ob_get_level() > 0 && function_exists('ob_flush')) {
                 ob_flush();
