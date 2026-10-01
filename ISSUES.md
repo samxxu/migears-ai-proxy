@@ -17,20 +17,21 @@ Legend — **P0** functional or security · **P1** documentation that fails when
 
 | | |
 |---|---|
-| Unsettled | P0 0 · P1 0 · P2 1 · P3 3 · other 1 |
-| Settled | 0 of 5 |
-| Waiting on the owner | `P2-1`, `P3-2`, `P3-3` |
-| Waiting on the reviewer | `P3-1`, `G2` |
+| Unsettled | P0 0 · P1 0 · P2 1 · P3 2 · other 0 |
+| Settled | 3 of 6 |
+| Waiting on the owner | `P2-1`, `P3-4` |
 | Waiting on the coordinator | _nothing_ |
+| Waiting on the reviewer | `P3-1` |
 | Deferred, owing nobody | _nothing_ |
 
 | id | level | status | title |
 |---|---|---|---|
-| [`P2-1`](issues/P2-1.md) | P2 | **open** | The upstream read timeout defaults to no limit: CURLOPT_TIMEOUT => 0 … |
+| [`P2-1`](issues/P2-1.md) | P2 | **accepted** | A slow upstream that sends one byte every idle-timeout seconds never … |
 | [`P3-1`](issues/P3-1.md) | P3 | **rejected** | `AiProxyException::from()` has no caller anywhere in src, tests or … |
-| [`P3-2`](issues/P3-2.md) | P3 | **open** | Client-abort detection sits only in the chunk branch, so … |
-| [`P3-3`](issues/P3-3.md) | P3 | **open** | The `post()` docblock types `$headers` as `array<string,string>` while … |
-| [`G2`](issues/G2.md) | - | **fixed** | Strict flags: `phpunit.xml.dist` currently sets none of the five. The … |
+| [`P3-2`](issues/P3-2.md) | P3 | **verified** | Client-abort detection sits only in the chunk branch, so … |
+| [`P3-3`](issues/P3-3.md) | P3 | **verified** | The `post()` docblock types `$headers` as `array<string,string>` while … |
+| [`P3-4`](issues/P3-4.md) | P3 | **open** | A non-chunked upstream with no `Content-Length` that closes mid-body is … |
+| [`G2`](issues/G2.md) | - | **verified** | Strict flags: `phpunit.xml.dist` currently sets none of the five. The … |
 
 ## Unclosed
 
@@ -39,17 +40,15 @@ highest severity first. `waiting on` is the party who acts next, read from that 
 
 | | |
 |---|---|
-| Unclosed | **5** of 5 |
-| By status | `open` 3 · `rejected` 1 · `fixed` 1 |
-| Waiting on | owner 3 · reviewer 2 |
+| Unclosed | **3** of 6 |
+| By status | `open` 1 · `accepted` 1 · `rejected` 1 |
+| Waiting on | owner 2 · reviewer 1 |
 
 | level | item | status | waiting on | title |
 |---|---|---|---|---|
-| **P2** | [`P2-1`](issues/P2-1.md) | `open` | owner | The upstream read timeout defaults to no limit: CURLOPT_TIMEOUT => 0 … |
+| **P2** | [`P2-1`](issues/P2-1.md) | `accepted` | owner | A slow upstream that sends one byte every idle-timeout seconds never … |
 | **P3** | [`P3-1`](issues/P3-1.md) | `rejected` | reviewer | `AiProxyException::from()` has no caller anywhere in src, tests or … |
-| **P3** | [`P3-2`](issues/P3-2.md) | `open` | owner | Client-abort detection sits only in the chunk branch, so … |
-| **P3** | [`P3-3`](issues/P3-3.md) | `open` | owner | The `post()` docblock types `$headers` as `array<string,string>` while … |
-| **-** | [`G2`](issues/G2.md) | `fixed` | reviewer | Strict flags: `phpunit.xml.dist` currently sets none of the five. The … |
+| **P3** | [`P3-4`](issues/P3-4.md) | `open` | owner | A non-chunked upstream with no `Content-Length` that closes mid-body is … |
 
 ## Verdict
 
@@ -90,20 +89,21 @@ No test for the slow-trickle scenario (one byte per timeout window); no test for
 
 | | |
 |---|---|
-| 未了结 | P0 0 · P1 0 · P2 1 · P3 3 · 其他 1 |
-| 已了结 | 0 / 5 |
-| 等负责人 | `P2-1`, `P3-2`, `P3-3` |
-| 等评审方 | `P3-1`, `G2` |
+| 未了结 | P0 0 · P1 0 · P2 1 · P3 2 · 其他 0 |
+| 已了结 | 3 / 6 |
+| 等模块主 | `P2-1`, `P3-4` |
 | 等协调人 | _无_ |
+| 等评审方 | `P3-1` |
 | 已暂缓，不欠谁 | _无_ |
 
 | id | 级别 | 状态 | 标题 |
 |---|---|---|---|
-| [`P2-1`](issues/P2-1.md) | P2 | **open** | 上游读超时默认无上界：CURLOPT_TIMEOUT => 0，只有 CONNECTTIMEOUT => 10，OpenClient 与 … |
+| [`P2-1`](issues/P2-1.md) | P2 | **accepted** | 慢速上游每空闲超时秒发一字节，永远不会触发看门狗——流始终「活跃」，无限占用 PHP worker。看门狗只对完全静默生效，不对涓流生效。 |
 | [`P3-1`](issues/P3-1.md) | P3 | **rejected** | AiProxyException::from() 在 src、tests、tools 中零调用；默认 Emitter 打开 … |
-| [`P3-2`](issues/P3-2.md) | P3 | **open** | 断连检测只在 chunk 分支，idle 期间不检查 connection_aborted()。README … |
-| [`P3-3`](issues/P3-3.md) | P3 | **open** | post() 的 docblock 把 $headers 标为 … |
-| [`G2`](issues/G2.md) | - | **fixed** | 严格开关：`phpunit.xml.dist` … |
+| [`P3-2`](issues/P3-2.md) | P3 | **verified** | 断连检测只在 chunk 分支，idle 期间不检查 connection_aborted()。README … |
+| [`P3-3`](issues/P3-3.md) | P3 | **verified** | post() 的 docblock 把 $headers 标为 … |
+| [`P3-4`](issues/P3-4.md) | P3 | **open** | 没有 `Content-Length` 的非分块上游若在正文中途关闭，会被报成成功。真实 SSE … |
+| [`G2`](issues/G2.md) | - | **verified** | 严格开关：`phpunit.xml.dist` … |
 
 ## 未关闭
 
@@ -112,17 +112,15 @@ No test for the slow-trickle scenario (one byte per timeout window); no test for
 
 | | |
 |---|---|
-| 未关闭 | **5** / 5 |
-| 按状态 | `open` 3 · `rejected` 1 · `fixed` 1 |
-| 等在谁 | 负责人 3 · 评审方 2 |
+| 未关闭 | **3** / 6 |
+| 按状态 | `open` 1 · `accepted` 1 · `rejected` 1 |
+| 等在谁 | 模块主 2 · 评审方 1 |
 
 | 级别 | 条目 | 状态 | 等在谁 | 标题 |
 |---|---|---|---|---|
-| **P2** | [`P2-1`](issues/P2-1.md) | `open` | 负责人 | 上游读超时默认无上界：CURLOPT_TIMEOUT => 0，只有 CONNECTTIMEOUT => 10，OpenClient 与 … |
+| **P2** | [`P2-1`](issues/P2-1.md) | `accepted` | 模块主 | 慢速上游每空闲超时秒发一字节，永远不会触发看门狗——流始终「活跃」，无限占用 PHP worker。看门狗只对完全静默生效，不对涓流生效。 |
 | **P3** | [`P3-1`](issues/P3-1.md) | `rejected` | 评审方 | AiProxyException::from() 在 src、tests、tools 中零调用；默认 Emitter 打开 … |
-| **P3** | [`P3-2`](issues/P3-2.md) | `open` | 负责人 | 断连检测只在 chunk 分支，idle 期间不检查 connection_aborted()。README … |
-| **P3** | [`P3-3`](issues/P3-3.md) | `open` | 负责人 | post() 的 docblock 把 $headers 标为 … |
-| **-** | [`G2`](issues/G2.md) | `fixed` | 评审方 | 严格开关：`phpunit.xml.dist` … |
+| **P3** | [`P3-4`](issues/P3-4.md) | `open` | 模块主 | 没有 `Content-Length` 的非分块上游若在正文中途关闭，会被报成成功。真实 SSE … |
 
 ## 结论
 
