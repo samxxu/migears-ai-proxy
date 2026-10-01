@@ -77,15 +77,15 @@ final class ProxyTest extends TestCase
 
     public function testSendsHeartbeatDuringChunkFreeStretch(): void
     {
-        // A truly silent upstream: idle ticks but no deltas for 30ms, then a
-        // single trailing chunk. Heartbeat must come from the idle callback.
+        // A truly silent upstream: idle ticks but no deltas at all. The beat
+        // can only come from the idle callback, so there is deliberately no
+        // trailing delta here that a later delta-path check could supply.
         $client = new class implements ClientInterface {
             public function chat(array $messages, callable $onChunk, ?callable $onIdle = null): void
             {
                 $onIdle();
                 usleep(30 * 1000);
                 $onIdle();
-                $onChunk('end');
             }
         };
 
@@ -141,8 +141,9 @@ final class ProxyTest extends TestCase
                 $onChunk('hello');
                 $onIdle();                  // still connected
                 $this->state->value = true; // the browser goes away mid-silence
-                $onIdle();                  // no delta follows: the idle tick must notice
-                $onChunk('must not be relayed');
+                $onIdle();                  // no delta follows: the idle tick itself must notice
+                // No trailing delta on purpose: with the idle-tick check gone
+                // this test must fail, not pass via the later delta-path check.
             }
         };
 
@@ -153,6 +154,6 @@ final class ProxyTest extends TestCase
             $this->assertSame(499, $e->getCode());
         }
         $this->assertStringContainsString('hello', $this->joined());
-        $this->assertStringNotContainsString('must not be relayed', $this->joined());
+        $this->assertStringNotContainsString('[DONE]', $this->joined());
     }
 }

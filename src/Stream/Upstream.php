@@ -11,8 +11,10 @@ use MiGears\AiProxy\AiProxyException;
  *
  * Streams the response body chunk-by-chunk through a callback via
  * `CURLOPT_WRITEFUNCTION`, so the relay never buffers the full payload.
- * A transfer that goes quiet is aborted, so a half-open upstream cannot
- * hold the calling process forever.
+ * A transfer that goes quiet is aborted, so a silent upstream cannot hold
+ * the calling process forever. Only silence is bounded: total time stays
+ * unbounded by design, so an upstream that trickles one byte per idle
+ * window is not cut off.
  */
 final class Upstream
 {
