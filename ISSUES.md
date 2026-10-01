@@ -4,12 +4,12 @@
 > per item: a front-matter header and a thread. This file is generated from them and can be rewritten at
 > any time; edit an item, never this file.
 >
-> From the miGears Full-Module Code Review Report (5th round, 2026-09-28).
+> From the miGears Full-Module Code Review Report (6th round, 2026-10-01).
 
 | | |
 |---|---|
-| Status | **P2 open** |
-| Size | src 323 lines (net) · 29 tests · 4 src files |
+| Status | **Best state** |
+| Size | src 328 lines (net) · 29 tests · 6 src files |
 
 Legend — **P0** functional or security · **P1** documentation that fails when copied · **P2** robustness · **P3** metadata and docs
 
@@ -17,20 +17,21 @@ Legend — **P0** functional or security · **P1** documentation that fails when
 
 | | |
 |---|---|
-| Unsettled | P0 0 · P1 0 · P2 1 · P3 2 · other 0 |
-| Settled | 3 of 6 |
-| Waiting on the owner | `P2-1`, `P3-4` |
-| Waiting on the coordinator | _nothing_ |
-| Waiting on the reviewer | `P3-1` |
+| Unsettled | P0 0 · P1 0 · P2 0 · P3 3 · other 0 |
+| Settled | 4 of 7 |
+| Waiting on the owner | _nothing_ |
+| Waiting on the coordinator | `P3-4` |
+| Waiting on the reviewer | `P3-1`, `P3-5` |
 | Deferred, owing nobody | _nothing_ |
 
 | id | level | status | title |
 |---|---|---|---|
-| [`P2-1`](issues/P2-1.md) | P2 | **accepted** | A slow upstream that sends one byte every idle-timeout seconds never … |
+| [`P2-1`](issues/P2-1.md) | P2 | **verified** | A slow upstream that sends one byte every idle-timeout seconds never … |
 | [`P3-1`](issues/P3-1.md) | P3 | **rejected** | `AiProxyException::from()` has no caller anywhere in src, tests or … |
 | [`P3-2`](issues/P3-2.md) | P3 | **verified** | Client-abort detection sits only in the chunk branch, so … |
 | [`P3-3`](issues/P3-3.md) | P3 | **verified** | The `post()` docblock types `$headers` as `array<string,string>` while … |
-| [`P3-4`](issues/P3-4.md) | P3 | **open** | A non-chunked upstream with no `Content-Length` that closes mid-body is … |
+| [`P3-4`](issues/P3-4.md) | P3 | **question** | A non-chunked upstream with no `Content-Length` that closes mid-body is … |
+| [`P3-5`](issues/P3-5.md) | P3 | **fixed** | The README says the model client parses upstream data: lines and … |
 | [`G2`](issues/G2.md) | - | **verified** | Strict flags: `phpunit.xml.dist` currently sets none of the five. The … |
 
 ## Unclosed
@@ -40,27 +41,27 @@ highest severity first. `waiting on` is the party who acts next, read from that 
 
 | | |
 |---|---|
-| Unclosed | **3** of 6 |
-| By status | `open` 1 · `accepted` 1 · `rejected` 1 |
-| Waiting on | owner 2 · reviewer 1 |
+| Unclosed | **3** of 7 |
+| By status | `question` 1 · `rejected` 1 · `fixed` 1 |
+| Waiting on | coordinator 1 · reviewer 2 |
 
 | level | item | status | waiting on | title |
 |---|---|---|---|---|
-| **P2** | [`P2-1`](issues/P2-1.md) | `accepted` | owner | A slow upstream that sends one byte every idle-timeout seconds never … |
 | **P3** | [`P3-1`](issues/P3-1.md) | `rejected` | reviewer | `AiProxyException::from()` has no caller anywhere in src, tests or … |
-| **P3** | [`P3-4`](issues/P3-4.md) | `open` | owner | A non-chunked upstream with no `Content-Length` that closes mid-body is … |
+| **P3** | [`P3-4`](issues/P3-4.md) | `question` | coordinator | A non-chunked upstream with no `Content-Length` that closes mid-body is … |
+| **P3** | [`P3-5`](issues/P3-5.md) | `fixed` | reviewer | The README says the model client parses upstream data: lines and … |
 
 ## Verdict
 
-A compact streaming AI-proxy handler with proper SSE parsing and idle-timeout watchdog; a slow-trickle attack can hold a PHP worker indefinitely by sending one byte per timeout window.
+Every item state matches the code and the timeout ruling is documented in both halves; the model client’s deliberate drop of whitespace-only deltas is correct but still undocumented.
 
 ## Fixed since the last round
 
-All three prior P3 items confirmed fixed; G2 strict flags complete; all 5 flags load-bearing.
+P2-1's ruling is landed: the total timeout stays unbounded and both README halves now say only silence is bounded, with the cost written down and a finite-timeout curl option shown. The other four items are consistent with the code.
 
 ## Test gaps
 
-No test for the slow-trickle scenario (one byte per timeout window); no test for upstream connection failure mid-stream; no test for response body exceeding memory limit.
+The Emitter has no test for a failed fopen of php://output (which would silently discard all output); Upstream::post has no direct test for the 64KB error-body cap; extraHeaders values are never checked for a colon or a newline.
 
 ## Verification protocol
 
@@ -76,12 +77,12 @@ No test for the slow-trickle scenario (one byte per timeout window); no test for
 > 本模块问题的概览。条目本体在 [`issues/`](issues/README.md)，一条目一文件：前置字段加讨论串。
 > 本文件由条目生成，随时可以整段重写；请改条目，不要改本文件。
 >
-> 出自 miGears 全模块代码评审报告（5th round，2026-09-28）。
+> 出自 miGears 全模块代码评审报告（6th round，2026-10-01）。
 
 | | |
 |---|---|
-| 状态 | **P2 待修** |
-| 体量 | src 323 行（净）· 29 个用例 · 4 个源文件 |
+| 状态 | **状态最好** |
+| 体量 | src 328 行（净）· 29 个用例 · 6 个源文件 |
 
 级别说明 — **P0** 功能性或安全级 · **P1** 文档照抄即错 · **P2** 健壮性 · **P3** 元数据与文档
 
@@ -89,20 +90,21 @@ No test for the slow-trickle scenario (one byte per timeout window); no test for
 
 | | |
 |---|---|
-| 未了结 | P0 0 · P1 0 · P2 1 · P3 2 · 其他 0 |
-| 已了结 | 3 / 6 |
-| 等模块主 | `P2-1`, `P3-4` |
-| 等协调人 | _无_ |
-| 等评审方 | `P3-1` |
+| 未了结 | P0 0 · P1 0 · P2 0 · P3 3 · 其他 0 |
+| 已了结 | 4 / 7 |
+| 等模块主 | _无_ |
+| 等协调人 | `P3-4` |
+| 等评审方 | `P3-1`, `P3-5` |
 | 已暂缓，不欠谁 | _无_ |
 
 | id | 级别 | 状态 | 标题 |
 |---|---|---|---|
-| [`P2-1`](issues/P2-1.md) | P2 | **accepted** | 慢速上游每空闲超时秒发一字节，永远不会触发看门狗——流始终「活跃」，无限占用 PHP worker。看门狗只对完全静默生效，不对涓流生效。 |
+| [`P2-1`](issues/P2-1.md) | P2 | **verified** | 慢速上游每空闲超时秒发一字节，永远不会触发看门狗——流始终「活跃」，无限占用 PHP worker。看门狗只对完全静默生效，不对涓流生效。 |
 | [`P3-1`](issues/P3-1.md) | P3 | **rejected** | AiProxyException::from() 在 src、tests、tools 中零调用；默认 Emitter 打开 … |
 | [`P3-2`](issues/P3-2.md) | P3 | **verified** | 断连检测只在 chunk 分支，idle 期间不检查 connection_aborted()。README … |
 | [`P3-3`](issues/P3-3.md) | P3 | **verified** | post() 的 docblock 把 $headers 标为 … |
-| [`P3-4`](issues/P3-4.md) | P3 | **open** | 没有 `Content-Length` 的非分块上游若在正文中途关闭，会被报成成功。真实 SSE … |
+| [`P3-4`](issues/P3-4.md) | P3 | **question** | 没有 `Content-Length` 的非分块上游若在正文中途关闭，会被报成成功。真实 SSE … |
+| [`P3-5`](issues/P3-5.md) | P3 | **fixed** | README 称模型客户端解析上游 data: 行并「转发文本增量」，但 trim 后为空的增量（纯 "\n\n"）被静默丢弃，转发 … |
 | [`G2`](issues/G2.md) | - | **verified** | 严格开关：`phpunit.xml.dist` … |
 
 ## 未关闭
@@ -112,27 +114,27 @@ No test for the slow-trickle scenario (one byte per timeout window); no test for
 
 | | |
 |---|---|
-| 未关闭 | **3** / 6 |
-| 按状态 | `open` 1 · `accepted` 1 · `rejected` 1 |
-| 等在谁 | 模块主 2 · 评审方 1 |
+| 未关闭 | **3** / 7 |
+| 按状态 | `question` 1 · `rejected` 1 · `fixed` 1 |
+| 等在谁 | 协调人 1 · 评审方 2 |
 
 | 级别 | 条目 | 状态 | 等在谁 | 标题 |
 |---|---|---|---|---|
-| **P2** | [`P2-1`](issues/P2-1.md) | `accepted` | 模块主 | 慢速上游每空闲超时秒发一字节，永远不会触发看门狗——流始终「活跃」，无限占用 PHP worker。看门狗只对完全静默生效，不对涓流生效。 |
 | **P3** | [`P3-1`](issues/P3-1.md) | `rejected` | 评审方 | AiProxyException::from() 在 src、tests、tools 中零调用；默认 Emitter 打开 … |
-| **P3** | [`P3-4`](issues/P3-4.md) | `open` | 模块主 | 没有 `Content-Length` 的非分块上游若在正文中途关闭，会被报成成功。真实 SSE … |
+| **P3** | [`P3-4`](issues/P3-4.md) | `question` | 协调人 | 没有 `Content-Length` 的非分块上游若在正文中途关闭，会被报成成功。真实 SSE … |
+| **P3** | [`P3-5`](issues/P3-5.md) | `fixed` | 评审方 | README 称模型客户端解析上游 data: 行并「转发文本增量」，但 trim 后为空的增量（纯 "\n\n"）被静默丢弃，转发 … |
 
 ## 结论
 
-一个精简的流式 AI 代理处理器，SSE 解析与空闲超时看门狗齐全；慢速涓流攻击可在每个超时窗口发一字节，从而无限占用 PHP worker。
+每条条目状态都与代码一致，超时裁定已在两半文档写明；模型客户端刻意丢弃空白增量是对的，但尚未写进文档。
 
 ## 本轮已修复确认
 
-All three prior P3 items confirmed fixed; G2 strict flags complete; all 5 flags load-bearing.
+P2-1's ruling is landed: the total timeout stays unbounded and both README halves now say only silence is bounded, with the cost written down and a finite-timeout curl option shown. The other four items are consistent with the code.
 
 ## 测试盲区
 
-无慢速涓流场景测试（每超时窗口一字节）；无上流连接中途失败测试；无响应体超出内存限制测试。
+Emitter 无「php://output 打开失败」用例（那会让输出被静默丢弃）；Upstream::post 的 64KB 错误正文封顶无直接用例；extraHeaders 的取值从不校验冒号或换行。
 
 ## 验证方式
 
