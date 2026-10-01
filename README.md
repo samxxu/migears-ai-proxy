@@ -23,7 +23,7 @@ chat responses to the browser over Server-Sent Events (SSE).
 
 - Relay orchestration (`Proxy::stream()`): pull text deltas from a model client, push them to the SSE sink, inject `: ping` heartbeats, and abort on client disconnect — PSR-4 root `MiGears\AiProxy`.
 - The SSE output sink (`Stream\Emitter`) and the cURL streamed upstream reader (`Stream\Upstream`): `data:` / `event:` / `id:` framing with default `text/event-stream` headers, under an idle watchdog.
-- An OpenAI-compatible model client (`Model\OpenAiClient` behind `Model\ClientInterface`): parse the upstream `data:` SSE lines and forward text deltas. Zero framework dependencies — PHP `^8.1`, `ext-curl`, `ext-json` only.
+- An OpenAI-compatible model client (`Model\OpenAiClient` behind `Model\ClientInterface`): parse the upstream `data:` SSE lines and forward text deltas. A delta that is pure whitespace (a bare `"\n\n"` sent as its own event) is dropped rather than forwarded, so such a paragraph break does not reach the sink. Zero framework dependencies — PHP `^8.1`, `ext-curl`, `ext-json` only.
 
 **Not in scope (by design)**
 
@@ -118,7 +118,7 @@ MIT
 
 - 编排层（`Proxy::stream()`）：从模型客户端拉取文本增量、推送到 SSE 输出端、注入 `: ping` 心跳，并在客户端断连时中止 —— PSR-4 根为 `MiGears\AiProxy`。
 - SSE 输出端（`Stream\Emitter`）与 cURL 流式上游读取（`Stream\Upstream`）：`data:` / `event:` / `id:` 分帧并默认发送 `text/event-stream` 响应头，由停滞看门狗兜底。
-- OpenAI 兼容的模型客户端（`Model\OpenAiClient`，实现 `Model\ClientInterface`）：解析上游 `data:` SSE 行并转发文本增量。零框架依赖 —— 仅需 PHP `^8.1`、`ext-curl`、`ext-json`。
+- OpenAI 兼容的模型客户端（`Model\OpenAiClient`，实现 `Model\ClientInterface`）：解析上游 `data:` SSE 行并转发文本增量。纯空白的增量（例如作为独立事件发来的 `"\n\n"`）会被丢弃、不予转发，因此这样的段落分隔不会到达输出端。零框架依赖 —— 仅需 PHP `^8.1`、`ext-curl`、`ext-json`。
 
 **范围外（刻意不做）**
 
